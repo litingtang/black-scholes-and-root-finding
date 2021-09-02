@@ -1,0 +1,80 @@
+
+from Bisect import newton, bisect
+from BS import bsformula
+import matplotlib.pyplot as plt
+import pandas as pd
+
+
+def bsimpvol(callput, S0, K, r, T, price, q=0, priceTolerance=0.01, method='bisect', reportCalls=False):
+    
+    #f(σ′) = VBS(σ′;S,r,K,T) − VOBS(K,T) = 0
+    function = lambda sigma: bsformula(callput, S0, K, r, T, sigma, q=0)[0] #function(sigma)
+    derivfun = lambda sigma: bsformula(callput, S0, K, r, T, sigma, q=0)[2] #deriative(sigma)
+    
+    if method == 'newton':
+        ret =  newton(price, function, derivfun, 1.0, bounds=[0.1035, 0.3985], tols=[0.001, priceTolerance], maxiter=1000)
+        if reportCalls == True:
+            xvals, fdiffs, n = ret
+            return xvals, fdiffs, n
+       
+        else: print(ret)
+    
+    elif method == 'bisect':
+        xvals, fdiffs, n = bisect(price, function, start=None, bounds=[0.1035, 0.3985], tols=[0.001, priceTolerance], maxiter=1000)
+        
+        return xvals, fdiffs, n
+
+
+#BAC option
+#Bisect
+        
+#out of the money
+xvals, otm, n1 = bsimpvol(1, 29.46, 23, .025, 1, 5.8)
+
+print('OTM: \nX values: ', xvals, '\nDifferences:', otm, '\nNumber of iteration:', n1)
+print('Implied volatility:', xvals[-1])
+
+
+#at the money
+xvals, atm, n2 = bsimpvol(1, 29.46, 30, .025, 1, 2.69)
+
+print('\nATM: \nX values: ', xvals, '\nDifferences:', atm, '\nNumber of iteration:', n2)
+print('Implied volatility:', xvals[-1])
+
+#in the money
+xvals, itm, n3 = bsimpvol(1, 29.46, 37, .025, 1, 0.58)
+
+print('\nITM: \nX values: ', xvals, '\nDifferences:', itm, '\nNumber of iteration:', n3)
+print('Implied volatility:', xvals[-1])
+
+plt.plot(otm, label='OTM')
+plt.plot(atm, label='ATM')
+plt.plot(itm, label='ITM')
+
+plt.xlabel('Iterations')
+plt.ylabel('Differences')
+
+plt.title("Bisection method Convergence")
+
+plt.legend()
+
+plt.show()
+
+
+
+#Newton
+
+#xvals, otm, n1 = bsimpvol(1, 29.46, 23, .025, 1, 5.8, method='newton')
+#print('OTM: \nX values: ', xvals, '\nDifferences:', otm, '\nNumber of iteration:', n1)
+#print('Implied volatility:', xvals[-1])
+
+#xvals, atm, n2 = bsimpvol(1, 95, 1000, .05, 1, 10, 0, 0.0001, method='newton')
+
+#print('\nATM: \nX values: ', xvals, '\nDifferences:', atm, '\nNumber of iteration:', n2)
+#print('Implied volatility:', xvals[-1])
+
+
+#xvals, itm, n3 = bsimpvol(1, 29.46, 37, .025, 1, 0.58, method='newton')
+
+#print('\nITM: \nX values: ', xvals, '\nDifferences:', itm, '\nNumber of iteration:', n3)
+#print('Implied volatility:', xvals[-1])
