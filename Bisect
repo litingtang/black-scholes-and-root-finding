@@ -1,0 +1,146 @@
+
+import numpy as np
+from BS import bsformula
+import matplotlib.pyplot as plt
+
+def newton(target, function, derivfun, start, bounds=None, tols=[0.001, 0.010], maxiter=1000):
+    """
+    :param target:   The target value for the function f
+    :param function: The function to solve
+    :param derivfun: The function representing df/dx
+    :param start:    The x-value to start looking at
+    :param bounds:   The upper and lower bound beyond which x shall not exceed
+    :param tols:     The stopping criteria, the distance between successive x-values 
+            that indicates success and the difference between target and the y-value that indicates success.
+    :param maxiter:  Maximum iteration count the solver will be allowed
+    """
+    n = 1
+    xvals  = []
+    fdiffs = []
+    
+    while n <= maxiter:
+        
+        
+        df = derivfun(start)
+        
+        while df == 0:
+            df = df + np.random.uniform(0,1)*0.01
+                
+        y = abs(target - function(start))
+        x1 = start - ((function(start) - target)/df)
+        
+        xvals.append(start)
+        fdiffs.append(y)
+        
+        if bounds != None:
+            
+            if x1 < bounds[0] or x1 > bounds[1]:
+                return float('NaN')
+                #raise Exception("Error! X exceeds the bound.")
+                    
+            if abs(x1 - start) < tols[0] or abs(function(start) - target) < tols[1]:
+                # Root is found or is very close
+                return xvals, fdiffs, n
+            
+            else:
+                start = x1
+                n += 1
+             
+        else:
+            raise Exception('Please enter the bounds.')
+    
+    return float('NaN')
+        
+                                 
+
+if __name__ == '__main__':
+   y  = lambda x: x**3 + 2*x**2 - 5
+   dy = lambda x: 3*x**2 + 4*x
+   xvals, nt, n = newton(0, y, dy, 1.0, [-1.0, 2.0], [.0001, .001], 100)
+   ''' 
+   function = lambda sigma: bsformula(1, 30, 30, .025, 1, sigma, q=0)[0] #function(sigma)
+   derivfun = lambda sigma: bsformula(1, 29.46, 30, .025, 1, sigma, q=0)[2] #deriative(sigma)
+   
+   print(newton(5.58, function, derivfun, 5, [0, 2.0], [.0001, .001], 100))
+   ''' 
+
+
+def bisect(target, function, start=None, bounds=None, tols=[0.001,0.010], maxiter=1000):
+    
+    """
+    :param target: The target value of the function
+    :param function: The function to solve
+    :param start: the x-value to start looking at
+    :param bounds: The upper and lower bound beyond which x shall not exceed
+    :param tol: the stopping criteria
+    :param maxiter: Maximum number of iterations
+    :return: The x-axis value of the root, number of iterations used
+    """
+    xvals  = []
+    fdiffs = []
+    
+    if start  == None:
+        
+        if bounds != None:
+            
+            a = bounds[0]
+            b = bounds[1]
+            c = (a + b) * 0.5 # Declare c as the midpoint ab 
+            n = 1 # Start with 1 iteration
+            
+            while n <= maxiter:
+                
+                y = abs(target - function(c))
+                xvals.append(c)
+                fdiffs.append(y)
+                c = (a + b) * 0.5
+                
+                if function(c) == target or abs(a - b) * 0.5 < tols[0] or abs(target - function(c)) * 0.5 < tols[1]:
+                    # Root is found or is very close
+                    return xvals, fdiffs, n
+            
+                n += 1
+                    
+                if n == maxiter:
+                    print('NaN')
+                    
+                if function(c) < target:
+                    a = c 
+                    
+                else:
+                    b = c 
+                    
+            print('NaN')
+            
+        else: 
+            print('Please enter the bounds')
+    else:
+        print('Error')
+
+if __name__ == '__main__':
+    y = lambda x: x**3 + 2*x**2 - 5
+    xvals, bs, n = bisect(0, y, None, [-1.0, 2.0], [.001, .001], 100)
+   
+    
+if __name__ == '__main__':
+    plt.plot(nt, label='Newton')
+    plt.plot(bs, label='Bisection')
+    
+    plt.xlabel('Iterations')
+    plt.ylabel('Differences')
+    
+    plt.title("Convergence Properties")
+    
+    plt.legend()
+    
+    plt.show()
+
+
+
+
+
+    
+    
+    
+    
+ 
