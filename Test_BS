@@ -1,0 +1,18 @@
+
+from BS import bsformula
+
+call_price, call_delta, call_vega = bsformula(1, 25, 30, .05, 2.5, .2, 0)
+put_price , put_delta , put_vega  = bsformula(-1, 25, 30, .05, 2.5, .2, 0)
+
+
+if round(call_price, 5) == 2.54854 and round(call_delta, 5) == 0.49076 and round(call_vega, 5) == 15.76535:
+    print('Call option unit test pass.')
+
+else:
+    print('Call option unit test fail.')
+    
+if round(put_price, 5) == 4.02344 and round(put_delta, 5) == -0.50924 and round(put_vega, 5) == 15.76535:
+    print('Put option unit test pass.')
+    
+else: 
+    print('Put option unit test fail.')
